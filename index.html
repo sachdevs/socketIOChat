@@ -5,28 +5,65 @@
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; }
+      * { margin: 0; padding: 0; box-sizing: border-box; background: #eee;}
       body { font: 13px Helvetica, Arial; }
-      form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
+      #chat { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
+      #chat input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
+      #chat button { width: 9%; background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #3d94f6), color-stop(1, #1e62d0)); border: none; padding: 10px; }
       #messages { list-style-type: none; margin: 0; padding: 0; }
       #messages li { padding: 5px 10px; }
-      #messages li:nth-child(odd) { background: #eee; }
+      #contentWrap {float: left;}
+      #usersWrap {float:right; background: #eee;}
+      #usersOnline {}
+      #everything {display: none;}
     </style>
   </head>
   <body>
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
+    <div id="usernameWrap">
+        <form id="getUsername" action="">
+            <p><strong>Choose a Username:</strong>  </p>
+            <input id="u" autocomplete="off"/><button>Choose</button>
+        </form>
+    </div>
+
+    <div id="everything">
+      <div id="contentWrap">
+        <ul id="messages"></ul>
+        <form id="chat" action="">
+          <input id="m" autocomplete="off" /><button>Send</button>
+        </form>
+      </div>
+      <div id = "usersWrap">
+        <ul id = "usersOnline"></ul>
+          <li>Users Online:</li>
+      </div>
+    </div>
     <script>
-      var socket = io();
-      $('form').submit(function(){
-        socket.emit('chat message', $('#m').val());
-        $('#m').val('');
-        return false;
-      });
+    var socket = io();
+    var $everything = $('#everything');
+
+    $('#getUsername').submit(function(){
+        console.log('im in');
+        e.preventDefault();
+        socket.emit('new user', $('#u').val(), function(data){
+            if(data){
+                $('#usernameWrap').hide();
+                $('#everything').show();
+                console.log(data);
+            }
+            else{
+                alert('Username already in use, try again');
+            }
+        });
+        $('#u').val('');
+    });
+
+    $('#chat').submit(function(){
+      socket.emit('chat message', $('#m').val());
+      $('#m').val('');
+      return false;
+    });
+
     socket.on('chat message', function(msg){
         $('#messages').append($('<li>').text(msg));
     });
