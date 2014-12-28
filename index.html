@@ -13,7 +13,7 @@
       #messages { list-style-type: none; margin: 0; padding: 0; }
       #messages li { padding: 5px 10px; }
       #contentWrap {float: left;}
-      #usersWrap {float:right; background: #eee;}
+      #usersWrap {float:right; background: #eee; padding-right: 20px;}
       #usersOnline {}
       #everything {display: none;}
     </style>
@@ -34,38 +34,49 @@
         </form>
       </div>
       <div id = "usersWrap">
-        <ul id = "usersOnline"></ul>
-          <li>Users Online:</li>
+        <p><strong>Users Online:<strong><p>
+        <div id="userList">No one else is online</div> 
       </div>
     </div>
     <script>
     var socket = io();
     var $everything = $('#everything');
+    var $usernameWrap = $('#usernameWrap');
+    var $userList = $('#userList');
+    var userNum = 0;
 
     $('#getUsername').submit(function(){
-        console.log('im in');
-        e.preventDefault();
+        if($('#u').val() === "") return false;//prevent empty submission
         socket.emit('new user', $('#u').val(), function(data){
             if(data){
-                $('#usernameWrap').hide();
-                $('#everything').show();
-                console.log(data);
+                $usernameWrap.hide();
+                $everything.show();
             }
             else{
                 alert('Username already in use, try again');
             }
         });
         $('#u').val('');
+        return false;
     });
 
     $('#chat').submit(function(){
+      if($('#m').val() === "") return false;
       socket.emit('chat message', $('#m').val());
       $('#m').val('');
       return false;
     });
 
+    socket.on('usernames', function(users){
+        var userString = '';
+        for(i = 0; i < users.length; i++)
+            userString += users[i] + '</br>';
+        $userList.html(userString);
+        userNum++;
+    });
+
     socket.on('chat message', function(msg){
-        $('#messages').append($('<li>').text(msg));
+        $('#messages').append($('<li>').text(msg.username + ': ' +msg.message));
     });
     </script>
   </body>

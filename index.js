@@ -15,12 +15,23 @@ io.on('connection', function(socket){
 			callback(true);
 			socket.username = data;
 			users.push(socket.username);
-			io.emit('usernames', users);
+			updateUsernames();
 		}
 	});
     socket.on('chat message', function(msg){
-        io.emit('chat message', msg);
+        io.emit('chat message', {username: socket.username, message: msg});
     });
+
+    socket.on('disconnect', function(){
+    	if(!socket.username) return;
+    	console.log(socket.username + ' has disconnected');
+    	users.splice(users.indexOf(socket.username), 1);
+    	updateUsernames();
+    });
+
+    function updateUsernames(){
+		io.emit('usernames', users);
+    }
 });
 
 http.listen(3000, function(){
