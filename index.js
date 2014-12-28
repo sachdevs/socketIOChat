@@ -24,7 +24,7 @@ io.on('connection', function(socket){
 
     socket.on('disconnect', function(){
     	if(!socket.username) return;
-    	console.log(socket.username + ' has disconnected');
+    	io.emit('disconnect', socket.username);
     	users.splice(users.indexOf(socket.username), 1);
     	updateUsernames();
     });
