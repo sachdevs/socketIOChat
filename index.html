@@ -43,7 +43,6 @@
     var $everything = $('#everything');
     var $usernameWrap = $('#usernameWrap');
     var $userList = $('#userList');
-    var userNum = 0;
 
     $('#getUsername').submit(function(){
         if($('#u').val() === "") return false;//prevent empty submission
@@ -72,7 +71,7 @@
         for(i = 0; i < users.length; i++)
             userString += users[i] + '</br>';
         $userList.html(userString);
-        userNum++;
+        $('#messages').append($('<li>').text(users[users.length - 1] + ' has connected'));
     });
 
     socket.on('disconnect', function(username){
