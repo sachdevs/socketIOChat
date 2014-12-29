@@ -61,17 +61,26 @@
 
     $('#chat').submit(function(){
       if($('#m').val() === "") return false;
-      socket.emit('chat message', $('#m').val());
+      socket.emit('chat message', $('#m').val(), function(data){
+            $('#messages').append($('<li>').text('You done goofed, ' + data));
+      })
       $('#m').val('');
       return false;
     });
 
     socket.on('usernames', function(users){
         var userString = '';
-        for(i = 0; i < users.length; i++)
-            userString += users[i] + '</br>';
+        for(i = 0; i < users.list.length; i++){
+            userString += users.list[i] + '</br>';
+        }
         $userList.html(userString);
-        $('#messages').append($('<li>').text(users[users.length - 1] + ' has connected'));
+        if(users.lastAdded !== null)
+            $('#messages').append($('<li>').text(users.lastAdded + ' has connected'));
+    });
+
+    socket.on('whisper', function(userObject){
+        if(userObject.message !== '')
+            $('#messages').append($('<li>').text(userObject.username + ' <whisper> ' + userObject.to + ': ' + userObject.message));
     });
 
     socket.on('disconnect', function(username){

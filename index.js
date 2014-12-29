@@ -9,28 +9,43 @@ app.get('/', function(req, res){
 
 io.on('connection', function(socket){
 	socket.on('new user', function(data, callback){
-		if(users.indexOf(data) != -1)
+		if(data in users)
 			callback(false);
 		else{
 			callback(true);
 			socket.username = data;
+			users[socket.username] = socket; //key value pair. key = username value = socket.
 			users.push(socket.username);
-			updateUsernames();
+			updateUsernames(socket.username);
 		}
 	});
-    socket.on('chat message', function(msg){
-        io.emit('chat message', {username: socket.username, message: msg});
+    socket.on('chat message', function(msg, callback){
+    	var trimMsg = msg.trim();
+    	if(trimMsg.substr(0,3)==='/w '){
+    		trimMsg = trimMsg.substr(3);
+    		var a = trimMsg.split(' ');
+    		var actualMessage = trimMsg.substr(a[0].length);
+    		if(a[0] in users && socket.username !== a[0]){
+    			users[a[0]].emit('whisper', {username: socket.username, message: actualMessage, to: a[0]});
+    			users[socket.username].emit('whisper', {username: socket.username, message: actualMessage, to: a[0]});
+    		}
+    		else
+    			callback('Error, invalid username');
+    	}
+    	else{
+        	io.emit('chat message', {username: socket.username, message: msg});
+        }
     });
 
     socket.on('disconnect', function(){
     	if(!socket.username) return;
     	io.emit('disconnect', socket.username);
-    	users.splice(users.indexOf(socket.username), 1);
-    	updateUsernames();
+    	delete users[socket.username];
+    	updateUsernames(null);
     });
 
-    function updateUsernames(){
-		io.emit('usernames', users);
+    function updateUsernames(name){
+		io.emit('usernames', {list: users, lastAdded: name});
     }
 });
 
