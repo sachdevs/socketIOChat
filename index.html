@@ -59,6 +59,10 @@
         return false;
     });
 
+    $('#chat').keypress(function(){
+        socket.emit('typing');
+    });
+
     $('#chat').submit(function(){
       if($('#m').val() === "") return false;
       socket.emit('chat message', $('#m').val(), function(data){

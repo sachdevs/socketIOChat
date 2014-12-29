@@ -37,6 +37,10 @@ io.on('connection', function(socket){
         }
     });
 
+    socket.on('typing',function(){
+    	io.emit('typing', socket.username);
+    });
+
     socket.on('disconnect', function(){
     	if(!socket.username) return;
     	io.emit('disconnect', socket.username);
