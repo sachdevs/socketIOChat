@@ -16,6 +16,7 @@
       #usersWrap {float:right; background: #eee; padding-right: 20px;}
       #usersOnline {}
       #everything {display: none;}
+      #isTyping {float: bottom; position: fixed; display: none;}
     </style>
   </head>
   <body>
@@ -29,6 +30,7 @@
     <div id="everything">
       <div id="contentWrap">
         <ul id="messages"></ul>
+        <div id="isTyping"><p>A user is typing...</p></div>
         <form id="chat" action="">
           <input id="m" autocomplete="off" /><button>Send</button>
         </form>
@@ -62,6 +64,9 @@
     $('#chat').keypress(function(){
         socket.emit('typing');
     });
+    $('#chat').keyup(function(){
+        socket.emit('notTyping');
+    });
 
     $('#chat').submit(function(){
       if($('#m').val() === "") return false;
@@ -80,6 +85,13 @@
         $userList.html(userString);
         if(users.lastAdded !== null)
             $('#messages').append($('<li>').text(users.lastAdded + ' has connected'));
+    });
+
+    socket.on('typing', function(){
+        $('#isTyping').show();
+    });
+    socket.on('notTyping', function(){
+        $('#isTyping').delay(800).fadeOut(400);
     });
 
     socket.on('whisper', function(userObject){

@@ -38,7 +38,11 @@ io.on('connection', function(socket){
     });
 
     socket.on('typing',function(){
-    	io.emit('typing', socket.username);
+    	socket.broadcast.emit('typing');
+    });
+
+    socket.on('notTyping',function(){
+    	socket.broadcast.emit('notTyping');
     });
 
     socket.on('disconnect', function(){
