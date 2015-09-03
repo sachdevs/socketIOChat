@@ -1,7 +1,7 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);//new instance of socket using http server object
-var users = [];
+var users = {};
 
 app.get('/', function(req, res){
     res.sendFile(__dirname + '/index.html');//serves html file
@@ -15,7 +15,6 @@ io.on('connection', function(socket){
 			callback(true);
 			socket.username = data;
 			users[socket.username] = socket; //key value pair. key = username value = socket.
-			users.push(socket.username);
 			updateUsernames(socket.username);
 		}
 	});
@@ -49,11 +48,11 @@ io.on('connection', function(socket){
     	if(!socket.username) return;
     	io.emit('disconnect', socket.username);
     	delete users[socket.username];
-    	updateUsernames(null);
+        updateUsernames(null);
     });
 
     function updateUsernames(name){
-		io.emit('usernames', {list: users, lastAdded: name});
+		io.emit('usernames', {list: Object.keys(users), lastAdded: name});
     }
 });
 

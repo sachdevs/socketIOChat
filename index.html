@@ -53,11 +53,14 @@
     #contentWrap {
         float: left;
         overflow-y: scroll;
-        margin-bottom: 300px;
+        margin-bottom: 55px;
     }
     
     #usersWrap {
-        float: right;
+        float: left;
+        position: fixed;
+        right: 0;
+        top: 0;
         background: #eee;
         padding-right: 20px;
     }
@@ -80,7 +83,7 @@
 <body>
     <div id="usernameWrap">
         <form id="getUsername" action="">
-            <p><strong>Choose a Username:</strong> </p>
+            <p><strong>Choose an Alphanumeric Username:</strong> </p>
             <input id="u" autocomplete="off" />
             <button>Choose</button>
         </form>
@@ -113,16 +116,22 @@
 
     $('#getUsername').submit(function(){
         if($('#u').val() === "") return false;//prevent empty submission
-        socket.emit('new user', $('#u').val(), function(data){
+        var val = $('#u').val() + "";
+        var letters = /^[0-9a-zA-Z]+$/g;
+        if(!val.match(letters))
+          alert("invalid username");
+        else{
+          socket.emit('new user', val, function(data){
             if(data){
-                $usernameWrap.hide();
-                $everything.show();
+              $usernameWrap.hide();
+              $everything.show();
             }
             else{
-                alert('Username already in use, try again');
+              alert('Username already in use, try again');
             }
-        });
-        $('#u').val('');
+          });
+          $('#u').val('');
+        }
         return false;
     });
 
@@ -144,6 +153,7 @@
 
     socket.on('usernames', function(users){
         var userString = '';
+        console.log(users.list);
         for(i = 0; i < users.list.length; i++){
             userString += users.list[i] + '</br>';
         }
@@ -170,19 +180,6 @@
 
     socket.on('disconnect', function(username){
         $('#messages').append($('<li>').text(username + ' has left'));
-        var toSearch = $userList.html().split("<br>");
-        var insert = '';
-        console.log(toSearch);
-        for(var i = 0; i < toSearch.length; i++){
-          if(toSearch[i] === username){
-            alert("im in");
-            toSearch.splice(i, 1);
-            insert = toSearch.join("<br>")+"";
-            break;
-          }
-        }
-        console.log(typeof(insert));
-        document.getElementById("userList").innerHTML = "hi";
         scroll();
     });
 
