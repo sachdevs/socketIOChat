@@ -1,46 +1,111 @@
 <!doctype html>
 <html>
-  <head>
+
+<head>
     <title>socketChat</title>
     <script src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <style>
-      * { margin: 0; padding: 0; box-sizing: border-box; background: #eee;}
-      body { font: 13px Helvetica, Arial; }
-      #chat { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-      #chat input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-      #chat button { width: 9%; background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #3d94f6), color-stop(1, #1e62d0)); border: none; padding: 10px; }
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages li { padding: 5px 10px; }
-      #contentWrap {float: left;}
-      #usersWrap {float:right; background: #eee; padding-right: 20px;}
-      #usersOnline {}
-      #everything {display: none;}
-      #isTyping {padding-left: 10px; float: bottom; position: fixed; display: none;}
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        background: #eee;
+    }
+    
+    body {
+        font: 13px Helvetica, Arial;
+    }
+    
+    #chat {
+        background: #000;
+        padding: 3px;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+        margin-top: 10px;
+    }
+    
+    #chat input {
+        border: 0;
+        padding: 10px;
+        width: 90%;
+        margin-right: .5%;
+    }
+    
+    #chat button {
+        width: 9%;
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #3d94f6), color-stop(1, #1e62d0));
+        border: none;
+        padding: 10px;
+    }
+    
+    #messages {
+        list-style-type: none;
+        margin: 0;
+        padding: 0;
+    }
+    
+    #messages li {
+        padding: 5px 10px;
+    }
+    
+    #contentWrap {
+        float: left;
+        overflow-y: scroll;
+        margin-bottom: 300px;
+    }
+    
+    #usersWrap {
+        float: right;
+        background: #eee;
+        padding-right: 20px;
+    }
+    
+    #usersOnline {}
+    
+    #everything {
+        display: none;
+    }
+    
+    #isTyping {
+        padding-left: 10px;
+        float: bottom;
+        position: fixed;
+        display: none;
+    }
     </style>
-  </head>
-  <body>
+</head>
+
+<body>
     <div id="usernameWrap">
         <form id="getUsername" action="">
-            <p><strong>Choose a Username:</strong>  </p>
-            <input id="u" autocomplete="off"/><button>Choose</button>
+            <p><strong>Choose a Username:</strong> </p>
+            <input id="u" autocomplete="off" />
+            <button>Choose</button>
         </form>
     </div>
-
     <div id="everything">
-      <div id="contentWrap">
-        <ul id="messages"></ul>
-        <div id="isTyping"><p>A user is typing...</p></div>
-        <form id="chat" action="">
-          <input id="m" autocomplete="off" /><button>Send</button>
-        </form>
-      </div>
-      <div id = "usersWrap">
-        <p><strong>Users Online:<strong><p>
+        <div id="contentWrap">
+            <ul id="messages"></ul>
+            <div id="isTyping">
+                <p>A user is typing...</p>
+            </div>
+            <form id="chat" action="">
+                <input id="m" autocomplete="off" />
+                <button>Send</button>
+            </form>
+        </div>
+        <div id="usersWrap">
+            <p><strong>Users Online:<strong><p>
         <div id="userList">No one else is online</div> 
       </div>
     </div>
     <script>
+    function scroll(){
+      $("html, body").animate({ scrollTop: $(document).height() }, "fast");
+    }
+
     var socket = io();
     var $everything = $('#everything');
     var $usernameWrap = $('#usernameWrap');
@@ -85,26 +150,45 @@
         $userList.html(userString);
         if(users.lastAdded !== null)
             $('#messages').append($('<li>').text(users.lastAdded + ' has connected'));
+        scroll();
     });
 
     socket.on('typing', function(){
         $('#isTyping').show();
+        scroll();
     });
     socket.on('notTyping', function(){
         $('#isTyping').delay(800).fadeOut(400);
+        scroll();
     });
 
     socket.on('whisper', function(userObject){
         if(userObject.message !== '')
             $('#messages').append($('<li>').text(userObject.username + ' <whisper> ' + userObject.to + ': ' + userObject.message));
+        scroll();
     });
 
     socket.on('disconnect', function(username){
         $('#messages').append($('<li>').text(username + ' has left'));
+        var toSearch = $userList.html().split("<br>");
+        var insert = '';
+        console.log(toSearch);
+        for(var i = 0; i < toSearch.length; i++){
+          if(toSearch[i] === username){
+            alert("im in");
+            toSearch.splice(i, 1);
+            insert = toSearch.join("<br>")+"";
+            break;
+          }
+        }
+        console.log(typeof(insert));
+        document.getElementById("userList").innerHTML = "hi";
+        scroll();
     });
 
     socket.on('chat message', function(msg){
         $('#messages').append($('<li>').text(msg.username + ': ' +msg.message));
+        scroll();
     });
     </script>
   </body>
