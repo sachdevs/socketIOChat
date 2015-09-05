@@ -1,7 +1,7 @@
 SocketIO Chat Application
 =========================
 From SocketIO’s documentation.<br>
-##[Click here to view live version](sachdevs-socketchat.herokuapp.com)
+##[Click here to view live version](http://sachdevs-socketchat.herokuapp.com)
 Just watch out if app is sleeping since its running on free heroku.
 <b>Currently finished:</b><br>
 Implementation of default chat<br>
