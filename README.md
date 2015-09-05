@@ -1,6 +1,8 @@
 SocketIO Chat Application
 =========================
 From SocketIO’s documentation.<br>
+[http://sachdevs-socketchat.herokuapp.com]##Click here to view live version
+Just watch out if app is sleeping since its running on free heroku.
 <b>Currently finished:</b><br>
 Implementation of default chat<br>
 Broadcast a message to connected users when someone connects or disconnects<br>
